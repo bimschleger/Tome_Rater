@@ -1,3 +1,11 @@
+class Fruit(object):
+    def __init__(self, type, color):
+        self.type = type
+        self.color = color
+
+    def __repr__(self):
+        return 'A {} is {}.'.format(self.type, self.color)
+
 class User(object):
     def __init__(self, name, email):
         self.name = str(name)
@@ -8,7 +16,7 @@ class User(object):
         return self.email
 
     def change_email(self, address):
-        self.eamil = address
+        self.email = address
         print(f'The email address for {self.name} has been updated')
 
     def __repr__(self):
@@ -108,3 +116,37 @@ class Nonfiction(Book):
 
     def __repr__(self):
         return '{}, a {} manual on {}'.format(self.title, self.level, self.subject)
+
+class TomeRater(object):
+    def __init__(self):
+        self.users = {}     # Key = User email. Value = User object.
+        self.books = {}     # Key: Book object. Value: num times read by Users.
+
+    def create_book(self, title, isbn):
+        book1 = Book(title, isbn)
+        return book1
+
+    def create_novel(title, author, isbn):
+        book1 = Fiction(title, author, isbn)
+        return book1
+
+    def create_non_fiction(title, subject, level, isbn):
+        book1 = Nonfiction(title, author, isbn)
+        return book1
+
+    def add_book_to_user(book, email, rating = None):
+        if email in self.users.keys():
+            print('No user with the email {}!'.format(email))
+        else:
+            user = self.users[email]
+            user.read_book(book, rating)
+            book.add_rating(rating)
+            if book not in self.books.keys():
+                self.books[book] = 1
+            else:
+                self.books[book] += 1
+    def add_user(name, email, user_books = None):
+        user_new = User(name, email)
+        if user_books != None:
+            for i in user_books:
+                add_book_to_user(i, user_new.email)
