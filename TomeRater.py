@@ -1,16 +1,8 @@
-class Fruit(object):
-    def __init__(self, type, color):
-        self.type = type
-        self.color = color
-
-    def __repr__(self):
-        return 'A {} is {}.'.format(self.type, self.color)
-
 class User(object):
     def __init__(self, name, email):
         self.name = str(name)
         self.email = str(email)
-        self.books = {}
+        self.books = {}                 # Key: Book object, Value: Rating
 
     def get_email(self):
         return self.email
@@ -29,18 +21,23 @@ class User(object):
             return False
 
     def read_book(self, book, rating = None):
-        self.books[book] = rating
+        if rating != None:
+             self.books[book] = rating
 
     def get_average_rating(self):
         i = 0
         ratings_sum = 0
 
         for rating in self.books.values():  # self.books has key/value pairs for book/rating
-            ratings_sum += rating
-            i += 1
+            try:
+                ratings_sum += rating
+                i += 1
+            except TypeError:
+                continue
 
         average_rating = ratings_sum / i
         return average_rating
+
 
 # Create the book Class
 
@@ -50,23 +47,35 @@ class Book(object):
         self.isbn = int(isbn)
         self.ratings = []
 
+
+    # Returns the Title of the Book
+
     def get_title(self):
         return self.title
 
+
+    # Returns the ISBN of the Book
+
     def get_isbn(self):
         return self.isbn
+
+
+    # Overwrite the existing ISBN with a new ISBN
 
     def set_isbn(self, isbn_new):
         self.isbn = isbn_new
         print('Updated ISBN for {}. New ISBN is: {}'.format(self.title, self.isbn))
 
+
     # Adds the book rating to the overall Book object.
 
-    def add_rating(self, rating):
-        if rating >= 0 and rating <= 4:
-            self.ratings.append(rating)
-        else:
+    def add_rating(self, rating = None):
+        try:
+            if rating >= 0 and rating <= 4:
+                self.ratings.append(rating)
+        except TypeError:
             print('Invalid rating.')
+
 
     # Checks to see if one book is the same as the other.
 
@@ -75,6 +84,9 @@ class Book(object):
             return True
         else:
             return False
+
+
+    # Return the average rating for a Book
 
     def get_average_rating(self):
         i = 0
@@ -90,6 +102,9 @@ class Book(object):
     def __hash__(self):
         return hash((self.title, self.isbn))
 
+
+# Sets up the Fiction subclass of Book
+
 class Fiction(Book):
     def __init__(self, title, author, isbn):
         super().__init__(title, isbn)
@@ -101,6 +116,8 @@ class Fiction(Book):
     def __repr__(self):
         return '{} by {}'.format(self.title, self.author)
 
+
+# Sets up the Nonfiction subclass of Book
 
 class Nonfiction(Book):
     def __init__(self, title, subject, level, isbn):
@@ -117,36 +134,113 @@ class Nonfiction(Book):
     def __repr__(self):
         return '{}, a {} manual on {}'.format(self.title, self.level, self.subject)
 
+
+# Creates the overall TomeRater class object
+
 class TomeRater(object):
     def __init__(self):
         self.users = {}     # Key = User email. Value = User object.
         self.books = {}     # Key: Book object. Value: num times read by Users.
 
+
+    # Creates a new Book class
+
     def create_book(self, title, isbn):
         book1 = Book(title, isbn)
         return book1
 
-    def create_novel(title, author, isbn):
+
+    # Creates a new Fiction class
+
+    def create_novel(self, title, author, isbn):
         book1 = Fiction(title, author, isbn)
         return book1
 
-    def create_non_fiction(title, subject, level, isbn):
-        book1 = Nonfiction(title, author, isbn)
+
+    # Creates a new Nonfiction class
+
+    def create_non_fiction(self, title, subject, level, isbn):
+        book1 = Nonfiction(title, subject, level, isbn)
         return book1
 
-    def add_book_to_user(book, email, rating = None):
-        if email in self.users.keys():
+
+    # Adds a Book to a User
+
+    def add_book_to_user(self, book, email, rating = None):
+        if email not in self.users.keys():
             print('No user with the email {}!'.format(email))
         else:
             user = self.users[email]
             user.read_book(book, rating)
-            book.add_rating(rating)
-            if book not in self.books.keys():
-                self.books[book] = 1
-            else:
+            if isinstance(rating, int):
+                book.add_rating(rating)
+            if book in self.books.keys():
                 self.books[book] += 1
-    def add_user(name, email, user_books = None):
+            else:
+                self.books[book] = 1
+
+
+    # Creates a new User and adds some books to them
+
+    def add_user(self, name, email, user_books = None):
         user_new = User(name, email)
+        self.users[user_new.email] = user_new
+
         if user_books != None:
-            for i in user_books:
-                add_book_to_user(i, user_new.email)
+            for book in user_books:
+                self.add_book_to_user(book, user_new.email)
+
+
+    # Prints the books in the Applicaiton
+
+    def print_catalog(self):
+        for i in self.books.keys():
+            print(i.title)
+
+
+    # Prints the list of Users in the applications
+
+    def print_users(self):
+        for i in self.users.values():
+            print(i)
+
+
+    # Print out the Book that has been read the most times
+
+    def most_read_book(self):
+        most_read_number = 0
+
+        for book, number in self.books.items():
+            if number > most_read_number:
+                most_read_book = book
+                most_read_number = number
+
+        return most_read_book
+
+
+    # Returns the highest rated book1
+
+    def highest_rated_book(self):
+        highest_rating = 0
+
+        for book in self.books.keys():
+            rating = book.get_average_rating()
+            if rating > highest_rating:
+                highest_rating = rating
+                highest_rating_book = book
+
+        return highest_rating_book
+
+
+    # Returns the User with the highest average ratingself.
+
+    def most_positive_user(self):
+        highest_rating = 0
+
+        for user in self.users.values():
+            rating = user.get_average_rating()
+            if rating > highest_rating:
+                highest_rating = rating
+                highest_rating_user = user
+
+        return highest_rating_user
