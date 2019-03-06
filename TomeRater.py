@@ -221,13 +221,16 @@ class TomeRater(object):
     # Returns the highest rated book1
 
     def highest_rated_book(self):
-        highest_rating = 0
-
+        i = 0
         for book in self.books.keys():
             rating = book.get_average_rating()
+            if i == 0:
+                highest_rating = rating
+                highest_rating_book = book
             if rating > highest_rating:
                 highest_rating = rating
                 highest_rating_book = book
+            i += 1
 
         return highest_rating_book
 
@@ -235,12 +238,15 @@ class TomeRater(object):
     # Returns the User with the highest average ratingself.
 
     def most_positive_user(self):
-        highest_rating = 0
-
+        i = 0
         for user in self.users.values():
             rating = user.get_average_rating()
+            if i == 0:
+                highest_rating = rating
+                highest_rating_user = user
             if rating > highest_rating:
                 highest_rating = rating
                 highest_rating_user = user
+            i += 1
 
         return highest_rating_user
